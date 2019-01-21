@@ -528,14 +528,13 @@ Array.isArray(Array.prototype);
 
 eg1:删除元素
 
-```
+```javascript
     let a = [1, 2, 3, 4, 5, 6, 7];
     let item = a.splice(0, 3); // [1,2,3]
     console.log(a); // [4,5,6,7]
     // 从数组下标0开始，删除3个元素
     let item = a.splice(-1, 3); // [7]
     // 从最后一个元素开始删除3个元素，因为最后一个元素，所以只删除了7
-复制代码
 ```
 
 eg2: 删除并添加
@@ -579,14 +578,13 @@ eg3: 不删除只添加:
 
 默认情况下sort()方法没有传比较函数的话，默认按字母升序，如果不是元素不是字符串的话，会调用`toString()`方法将元素转化为字符串的Unicode(万国码)位点，然后再比较字符。
 
-```
+```javascript
     // 字符串排列 看起来很正常
     var a = ["Banana", "Orange", "Apple", "Mango"];
     a.sort(); // ["Apple","Banana","Mango","Orange"]
     // 数字排序的时候 因为转换成Unicode字符串之后，有些数字会比较大会排在后面 这显然不是我们想要的
     var	a = [10, 1, 3, 20,25,8];
     console.log(a.sort()) // [1,10,20,25,3,8];
-复制代码
 ```
 
 **比较函数的两个参数：**
@@ -603,7 +601,7 @@ sort的比较函数有两个默认参数，要在函数中接收这两个参数�
 
 1. 数组元素为数字的升序、降序:
 
-   ```
+   ```javascript
     var array =  [10, 1, 3, 4,20,4,25,8];
     // 升序 a-b < 0   a将排到b的前面，按照a的大小来排序的 
     // 比如被减数a是10，减数是20  10-20 < 0   被减数a(10)在减数b(20)前面   
@@ -616,12 +614,11 @@ sort的比较函数有两个默认参数，要在函数中接收这两个参数�
       return b-a;
     });
     console.log(array); // [25,20,10,8,4,4,3,1];
-   复制代码
    ```
 
 2. 数组多条件排序
 
-   ```
+   ```javascript
     var array = [{id:10,age:2},{id:5,age:4},{id:6,age:10},{id:9,age:6},{id:2,age:8},{id:10,age:9}];
         array.sort(function(a,b){
             if(a.id === b.id){// 如果id的值相等，按照age的值降序
@@ -631,7 +628,6 @@ sort的比较函数有两个默认参数，要在函数中接收这两个参数�
             }
         })
      // [{"id":2,"age":8},{"id":5,"age":4},{"id":6,"age":10},{"id":9,"age":6},{"id":10,"age":9},{"id":10,"age":2}] 
-   复制代码
    ```
 
 3. 自定义比较函数，天空才是你的极限
@@ -1475,8 +1471,190 @@ keys()浏览器兼容性(MDN):Chrome 38, Firefox 28,Opera 25,Safari 8,
 ###  找到在第一个数组array1中出现，而在第二个数组array2中没有出现的数字
 
 ``` javascript
-function findNullof
+function findNullofNum(arr1, arr2) {
+    var str = arr2.join("");
+    var result = [];
+    for(var i = 0, x = 0; i < arr1.length;i++) {
+        if(str.indexOf(arr1[i]) == -1) {
+            result[x] = arr1[i];
+        }
+        x++;
+    }
+    return result;
+}
 ```
 
+###  编写函数，用于过滤一个数组内重复的元素，并用这些元素重构一个新数组，新数组内也不能有重复元素
 
+
+
+###  给定一个数组实现字符串反转
+
+```javascript
+var arr = new Array();
+function myreverse(arr) {
+    for(var i = 0; i < arr.length/2; i++) {
+        var temp = arr[i];
+        arr[i] = arr[arr.length - i - 1];
+        arr[arr.length - i -1] = temp;
+    }
+}
+```
+
+###  将数组["a","b"] 和 ["c","d"] 合并，并且删除第二个元素
+
+
+
+###  请给Array本地对象增加一个原型方法，它的用途是删除数组中重复的条目，并将数组返回。
+
+```javascript
+Array.prototype.delrepeat = function() {
+    var arr = this;
+    var _arr = new Array();
+    for(var i in arr) {
+        if(i == 'delrepeat') continue;
+        if(_arr.length == 0)
+            _arr.push(arr[i]);
+        for(var j=0;j < _arr.length;j++) {
+            if(arr[i] == _arr[j]) {
+                break;
+            }
+            if(j > _arr.length - 2)
+                _arr.push(arr[i]);
+        }
+    }
+    return _arr;
+}
+```
+
+##  函数
+
+### JavaScript中如何规避多人开发函数重名问题
+
+- 命名空间，根据不同开发人员开发的功能在函数前加前缀
+- 立即执行函数模式（即时对象初始化），避免污染全局环境
+
+###  分别描述JavaScript中 prototype、constructor、this、argument的含义
+
+-  **prototype** prototype的行为类似于C++中的静态域，用prototype来对构造函数创建共用的存储空间,prototype就相当于是一个公共的存储空间,所有实例化对象所引用的都是一个地方的内容,不需要再重新开辟空间去存储函数或者变量。这种共享是只读的，在任何一个实例中只能够用自己的同名属性覆盖这个属性，而不能够改变它。
+
+
+```javascript
+    // 给Object原型中添加一个函数
+    Object.prototype.newStr = function(str){
+        console.log(str);
+    };
+    // 给Object原型中添加一个函数
+    Object.prototype.texts = "自定义的新变量<br>";
+    var obj1 = new Object();
+    var obj2 = new Object();
+    console.log(obj1.texts === obj2.texts); //true
+```
+- **constructor** 构造函数，在对象创建或者实例化时
+
+###  typeof、instanceof
+
+- JavaScript里的typeof有6种：object、function、string、boolean、number、undefined
+- typeof 返回一个字符串，用于说明元算数的类型
+- instanceof判断一个变量是否是某个对象（类）的实例，返回值是布尔类型
+
+##  this
+
+###  简述JavaScript中对this的理解，并举例说明
+
+this代表函数运行时，自动生成的一个内部对象，只能在函数内部使用。比如
+
+```javascript
+function test() {
+    this.x = 1;
+}
+```
+
+随着函数使用场合的不同，this的值会发生变化。但是有一个总的原则，那就是this指的是调用函数的那个对象。
+
+下面分四种情况，详细讨论this的用法：
+
+####  纯粹的函数调用 ####
+
+这是函数的最通常用法，属于全局性调用，因此this就代表全局对象Global
+
+```javascript
+function test() {
+    this.x = 1;
+    alert(this.x);
+}
+//为了证明this就是全局对象,这里对代码做一下改变
+var x = 1;
+function test() {
+    alert(this.x);
+}
+test();//1
+```
+
+####  作为对象方法的调用 ####
+
+函数还可以作为某个对象的方法调用，这时this就指这个上级对象
+
+```javascript
+function test() {
+    alter(this.x);
+}
+var o = {};
+o.x = 1;
+o.m = test;
+o.m();//1
+```
+
+####  作为构造函数调用 ####
+
+所谓构造函数，就是通过这个函数生成一个新对象（object）。这时，this就指这个新对象。
+
+```javascript
+function test() {
+    this.x = 1;
+}
+var o = new test();
+alert(o.x);//1
+//为了表明这时的this不是全局对象，这里对代码做一些改变
+var x=2;
+function test() {
+    this.x =1;
+}
+var o = new test();
+alert(x);//2
+//结果为2，表明全局变量x的值根本没变化
+```
+
+####  apply调用 ####
+
+apply() 是函数对象的一个方法，它的作用是改变函数的调用对象，它的第一个参数就表示改变后的调用这个函数的对象。因此，this指的就是第一个参数。
+
+```javascript
+var x = 0;
+function test() {
+    alter(this.x);
+}
+var o = {};
+o.x = 1;
+o.m = test;
+o.m.apply();//0
+```
+
+当apply（）的参数为空时，默认调用全局对象。因此，这时的运行结果为0，证明this指的是全局对象。如果把最后一行代码修改为`o.m.apply(o);//1` ，运行结果就变成了1，证明了这时this代表的是对象o。
+
+##  事件
+
+- onChange 事件是在客户端改变输入控件的值
+- onClick 事件处理程序可用在用户单击按钮时执行函数
+- onKeyDown 事件会在按下键盘时触发
+- onKeyPress 事件会在敲击键盘时触发，就是按下并抬起同一个按键
+
+###  写一段JavaScript，实现监听页面上所有a标签的click事件
+
+```javascript
+//原生的写法
+document.getElementsByTagName('a').onclick = function() {}
+//用jQuery的写法
+$('a').click(function() {});
+```
 
