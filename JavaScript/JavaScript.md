@@ -1648,6 +1648,11 @@ o.m.apply();//0
 - onClick 事件处理程序可用在用户单击按钮时执行函数
 - onKeyDown 事件会在按下键盘时触发
 - onKeyPress 事件会在敲击键盘时触发，就是按下并抬起同一个按键
+- window.onresize 事件会在浏览器的窗口大小被改变时触发
+- mouseover 不论鼠标指针穿过被选元素或其子元素，都会触发mouseover事件
+- mouseenter 只有在鼠标指针穿过被选元素时，才会触发mouseenter事件
+- mouseout  不论鼠标指针离开被选元素还是任何子元素，都会触发mouseout事件
+- mouseleave 只有在鼠标指针离开被选元素时，才会触发mouseleave事件
 
 ###  写一段JavaScript，实现监听页面上所有a标签的click事件
 
@@ -1656,5 +1661,700 @@ o.m.apply();//0
 document.getElementsByTagName('a').onclick = function() {}
 //用jQuery的写法
 $('a').click(function() {});
+```
+
+###  请写一个通用的事件监听器函数 ####
+
+``` javascript
+/*绑定事件与取消绑定*/
+var handleHash = {}
+var bind = (function() {
+    if(window.addEventListener) {
+        return function(el, type, fn, capture) {
+            el.addEventListener(type, function() {
+                fn();
+                handleHash[type] = handleHash[type] || [];
+                handleHash[type].push(arguments.callee);
+            },capture);
+        }else if (window.attachEvent) {
+            return function(el, type, fn, capture) {
+                el.attachEvent("on"+type, function() {
+                	fn();
+                    handleHash[type] = handleHash[type] || [];
+                	handleHash[type].push(arguments.callee);
+                });
+                    
+            };
+        };
+})();
+    var unbind = (function() {
+        if(window.addEventListener) {
+            return function(el, type) {
+                if(handleHash[type]){
+                    var i = 0, len= handleHash[type].length;
+                    for(i; i <len; i++) {
+                        el.removeEventListener(type, handleHash[type][i]);
+                    }
+                };
+            };
+        }else if(window.attachEvent) {
+            return function(el,type) {
+                if(handleHash[type]) {
+                    var i = 0,len = handleHash[type].length;
+                    for(i; i< len; i++) {
+                        el.detachEvent("on"+type, handleHash[type][i]);
+                    }
+                };
+            };
+        }
+    })();
+```
+
+handleHash 用作哈希表缓存事件function，handleHash[‘事件名称’]是一个数组，用来添加多个事件监听的方法，当需要移除哪个事件时，遍历handleHash[‘事件名称’]的数组，然后移除。
+
+###  简述JavaScript的事件模型 ###
+
+####  原始事件模型
+
+- 基本事件处理。
+- 事件类型 分为“输入事件（如 onclick）” 和 “语义事件（如onsubmit）”
+
+####  标准事件模型
+
+DOM2对其做了标准化
+
+1. 先由document向目标对象传播，称之为捕捉阶段。
+2. 目标对象的事件处理程序运行
+3. 从目标对象向document冒泡
+
+####  IE事件模型
+
+1. 传播过程只起泡，不捕捉。起泡中断的方法：window.event.cancelBulle = true
+2. event对象不是事件处理程序的函数参数，而是window的全局变量
+3. 事件注册函数attachEvent() 和反注册函数detachEvent()
+
+####  Netscape事件模型
+
+就是只捕捉不冒泡
+
+###  简述addEventListener和attachEvent的作用，两者是否有区别？ ###
+
+####  支持的浏览器
+
+- addEventListener 在支持DOM2的浏览器中使用，如Firefox、Chrome等
+- attachEvent 为IE所用
+
+####  处理程序执行阶段
+
+- addEventListener的第三个参数为true时，在捕获阶段执行；为false时，在冒泡阶段执行
+- attachEvent均在冒泡阶段执行
+
+#### 作用域 ####
+
+- addEventListener 的作用域为元素作用域，this为element引用
+- addEvent的作用域为全局作用域，this为window引用
+
+####  事件处理程序执行顺序
+
+- addEventListener：执行顺序和添加顺序一致
+- attachEvent：执行顺序与添加顺序相反
+
+### document.load 和document.ready有何区别？
+
+页面加载完成有两种事件，一是ready，表示文档结构已经加载完成（不包含图片等非文字媒体文件）；
+
+二是onload，表示页面包含图片等文件在内的所有元素都加载完成
+
+###  JavaScript的事件绑定的方法，并举例说明
+
+在JavaScript中，有三种常用的绑定事件的方法：
+
+1. 在DOM元素中直接绑定；
+
+``` javascript
+<input  onclick="alert('谢谢支持')"  type="button"  value="点击我，弹出警告框" />
+
+<input  onclick="myAlert()"  type="button"  value="点击我，弹出警告框" />
+<script type="text/javascript">
+function myAlert(){
+    alert("谢谢支持");
+}
+</script>
+```
+
+2. 在JavaScript代码中绑定；
+```javascript
+<input  id="demo"  type="button"  value="点击我，显示 type 属性" />
+<script type="text/javascript">
+document.getElementById("demo").onclick=function(){
+    alert(this.getAttribute("type"));  //  this 指当前发生事件的HTML元素，这里是<div>标签
+}
+</script>
+```
+
+3. 绑定事件监听函数。
+
+```javascript
+function addEvent(obj,type,handle){
+    try{  // Chrome、FireFox、Opera、Safari、IE9.0及其以上版本
+        obj.addEventListener(type,handle,false);
+    }catch(e){
+        try{  // IE8.0及其以下版本
+            obj.attachEvent('on' + type,handle);
+        }catch(e){  // 早期浏览器
+            obj['on' + type] = handle;
+        }
+    }
+
+```
+
+##  表单、文本框
+
+###  如何获取下拉框中选中项的内容？ ###
+
+```javascript
+<select id="test" name="">
+    <option value="1">text1</option>
+	<option value="2">text2</option>
+</select>
+//js原生的方法
+var myselect = document.getElementById("test");
+var index = myselect.selectIndex //selectIndex代表的是你所选中项的index
+value = myselect.options[index].value;//拿到选中项options的value
+myselect.options[index].text //拿到选中项options的text
+
+//jQuery方法
+var options = $("#test options:selected")
+alert(options.val())//拿到选中项的值
+alert(options.text())//拿到选中项的文本
+```
+
+###  table标签中border、cellpadding，以及td标签中colspan、rowspan分别起什么作业？
+
+- border：边界
+- cellpadding：边距
+- colspan：跨列数
+- rowspan：跨行数
+
+###  在Form表单中get与post方式提交的区别
+
+1. get是从服务器上获取数据，post是向服务器传送数据。
+2. get是把参数数据队列加到提交表单的action属性所指的URL中，值和表单内各个字段一一对应，在URL中可以看到。post是通过HTTP post机制，将表单内各个字段与其内容放置在HTML HEADER内一起传送到action属性所指的URL地址。用户看不到这个过程。
+3. get传送的数据量较小，不能大于2KB。post传送的数据量较大，一般默认为不受限制。但理论上，IIS4中最大值为80KB，IIS5中最大值为100KB。
+4. get安全性非常低，post安全性较高
+5. get限制Form表单的数据集的值必须为ASCII字符，不是ASCII字符时要转换为ASCII字符，也就是“%XX”(其中XX为该符号以16进制数表示的ASCII或ISO Latin-1值)这种；而post支持整个ISO10646字符集。
+
+###  写一个简单的Form表单，当光标离开表单时把表单的值发送给后台
+
+``` javascript
+<script type="text/javascript"> 
+    $("#o_form").blur(function() {
+    var vals = $(this).val();
+    $.Ajax({
+        url: "./index.php",
+        type: "post",
+        data:{$val: vals},
+        success : function(data) {
+            alert(data);
+        }
+    })
+})
+</script>
+```
+
+###  创建一个文本框，让其宽度为120像素，高度为20像素，对齐方法为居中对齐，写出该代码
+
+```javascript
+<textarea name="" id="" cols="30" rows="10"
+style="width:120px;
+hight:20px;
+text-align: center;"></textarea>
+```
+
+##  对称数
+
+###  一个数字倒着读时，和原数字相同，我们将这个数字称之为对称数，例如（1,121,88,8998），在不考虑性能的情况下，请找出1~10000之间的对称数，要求用JavaScript实现。
+
+```javascript
+<script>
+    for(var i = 1; i <= 10000; i++) {
+        var str_i = i.toString(), I = str_i.length;//将数字转化为字符串，获取字符串的长度
+        var arr_i = str_i.split("");//将字符串转化为数组
+        var rev_arr = [];//命名一个空数组
+        for(var j = 0; j < I; j++) {
+            rev_arr.unshift(arr_i[j]);
+        }
+        var rev_str = rev_arr.join("");
+        if(str_i == rev_str) {//将原来的数字与反转后的数字作比较
+            document.write(str_i + "<br>");//如果是相等的，就是对称数，并返回
+        }
+    }
+</script>
+```
+
+##  排序
+
+###  请根据每个元素的i属性，有小到大排序如下数组。
+
+``` javascript
+var ar=[{i:5,v:1},{i:2,v:4},{i:3,v:2},{i:1,v:5},{i:4,v:3}];
+
+ar.sort(function(a,b) {
+    return a.i - b.i;
+})
+//对于一个数组，sort()默认按字符编码排序：
+
+```
+
+###  JavaScript数组排序方法sort()的使用，重点介绍sort()参数的使用及其内部机制
+
+- sort方法用于对数组的元素进行排序
+- 语法：` arrayObject.sort(sortby)`
+- 参数：sortby 可选，规定排序顺序，必须是函数
+- 返回值：对数组的引用，数组在源数组上进行排序，不生成副本
+- 说明：
+
+1. 如果调用该方法时没有实用参数，将按字母顺序对数组中的元素进行排序，说得更精确点，是按照字符编码的顺序进行排序。
+2. 如果想按照其他标准进行排序，就需要提供比较函数，该函数要比较两个值，然后返回一个，用于说明这两个值的相对顺序的数字。比较函数应该具有两个参数：a和b，其返回值如下：
+   - 若a小于b，在排序后的数组中a应该出现在b之前，返回一个小于0的值
+   - 若a等于b，则返回0
+   - 若a大于b，则返回一个大于0的值。
+
+```javascript
+<script type="text/javascript">
+
+function sortNumber(a,b)
+{
+return a - b
+}
+
+var arr = new Array(6)
+arr[0] = "10"
+arr[1] = "5"
+arr[2] = "40"
+arr[3] = "25"
+arr[4] = "1000"
+arr[5] = "1"
+
+document.write(arr + "<br />")
+document.write(arr.sort(sortNumber))
+
+</script>
+```
+
+输出：
+
+```javascript
+10,5,40,25,1000,1
+1,5,10,25,40,1000
+```
+
+这里可以看出，如果安装升序排列，那么方法为：
+
+```javascript
+function sortNumber(a,b)
+{
+return a - b
+}
+```
+
+如果是按照降序排列则为：
+
+```javascript
+function sortNumber(a,b)
+{
+return b - a
+}
+```
+
+##  call、apply
+
+###  call和apply的区别
+
+ECMAScript 规范给所有函数都定义了 call 与 apply 两个方法，它们的应用非常广泛，它们的作用也是一模一样，只是传参的形式有区别而已。
+
+**apply( ) **
+
+apply 方法传入两个参数：一个是作为函数上下文的对象，另外一个是作为函数参数所组成的数组。
+
+```javascript
+var obj = {
+    name : 'linxin'
+}
+
+function func(firstName, lastName){
+    console.log(firstName + ' ' + this.name + ' ' + lastName);
+}
+
+func.apply(obj, ['A', 'B']);    // A linxin B
+```
+
+可以看到，obj 是作为函数上下文的对象，函数 func 中 this 指向了 obj 这个对象。参数 A 和 B 是放在数组中传入 func 函数，分别对应 func 参数的列表元素。
+
+apply的好处是可以直接将当前函数的arguments对象作为apply的第二个参数传入。
+
+**call()**
+
+call 方法第一个参数也是作为函数上下文的对象，但是后面传入的是一个参数列表，而不是单个数组。
+
+```javascript
+var obj = {
+    name: 'linxin'
+}
+
+function func(firstName, lastName) {
+    console.log(firstName + ' ' + this.name + ' ' + lastName);
+}
+
+func.call(obj, 'C', 'D');       // C linxin D
+```
+
+对比 apply 我们可以看到区别，C 和 D 是作为单独的参数传给 func 函数，而不是放到数组中。
+
+对于什么时候该用什么方法，其实不用纠结。如果你的参数本来就存在一个数组中，那自然就用 apply，如果参数比较散乱相互之间没什么关联，就用 call。
+
+###  apply 和 call 的用法
+
+**1.改变 this 指向**
+
+```javascript
+var obj = {
+    name: 'linxin'
+}
+
+function func() {
+    console.log(this.name);
+}
+
+func.call(obj);       // linxin
+```
+
+我们知道，call 方法的第一个参数是作为函数上下文的对象，这里把 obj 作为参数传给了 func，此时函数里的 this 便指向了 obj 对象。此处 func 函数里其实相当于
+
+```java
+function func() {
+    console.log(obj.name);
+}
+```
+
+**2.借用别的对象的方法**
+
+先看例子
+
+```javascript
+var Person1  = function () {
+    this.name = 'linxin';
+}
+var Person2 = function () {
+    this.getname = function () {
+        console.log(this.name);
+    }
+    Person1.call(this);
+}
+var person = new Person2();
+person.getname();       // linxin
+```
+
+从上面我们看到，Person2 实例化出来的对象 person 通过 getname 方法拿到了 Person1 中的 name。因为在 Person2 中，Person1.call(this) 的作用就是使用 Person1 对象代替 this 对象，那么 Person2 就有了 Person1 中的所有属性和方法了，相当于 Person2 继承了 Person1 的属性和方法。
+
+**3.调用函数**
+
+apply、call 方法都会使函数立即执行，因此它们也可以用来调用函数。
+
+```
+function func() {
+    console.log('linxin');
+}
+func.call();            // linxin
+```
+
+###  call的作用是什么？它的参数是如何传递的？
+
+call方法在msdn中的解释为，调用一个对象的一个方法，以另一个对象替换当前对象。
+
+JavaScript中，call的语法为：call(thisObj, arg1, ... , argn)
+
+参数thisObj：可选项，将被用作为当前对象的对象
+
+参数arg1, ... , ：可选项，将被传递方法参数列表
+
+## 继承和多态
+
+### 请用代码说明JavaScript如何实现继承和多态
+
+1. 继承
+
+   - 原型继承法
+```javascript
+function parentClass() {
+    var x = "I'm a parentClass field";
+    function method1() {
+        alert(x);
+        alert("I'm a parentClass  method!");
+    }
+    this.x = "I'm a parentClass object field!";
+    this.method1 = function() {
+        alert(x);
+        alert(this.x);
+        method1();
+    }
+}
+parentClass.prototype.method = function() {
+    alert("I'm a parentClass prototype method!");
+    parentClass.staticMethod = function() {
+        alert("I'm a parentClass static method!");
+    }
+}
+```
+   - 调用继承法
+
+```javascript
+
+```
+
+###  多态
+
+```javascript
+//重载
+function add() {
+    var sum = 0;
+    for(var i = 0; i < arguments.length; i++) {
+        sum += arguments[i];
+    }
+    return sum;
+}
+//覆盖
+function parentClass() {
+    this.method = function() {
+        alert("parentClass method");
+    }
+}
+function subClass() {
+    this.method = function() {
+        alert("subClass method");
+    }
+}
+subClass.prototype = new parentClass();
+subClass.prototype.constructor = subClass;
+var o = new subClass();
+o.method();
+```
+
+###  JavaScript实现一个类A，包含私有属性、公有属性、私有方法和公有方法
+
+``` javascript
+function A() {
+    this.name = "world";//公有属性
+    var message = "No Message!";//私有属性
+    this.sayHello = function() {
+        //公有方法（可访问所有权限的方法和属性）
+    }
+    function getMessage(){
+        //私有方法（只能访问私有的方法和属性）
+        alert(message);
+    }
+}
+class1.staticMethod = function() {
+    //定义该类的一个静态方法
+    alert("staticMethod()");
+}
+```
+
+JavaScript中所有的function都可以当作一个类来使用，从上述的例子可以看出，可以new一个类，也可以直接当作function调用。
+
+##  charAt()、indexOf()
+
+charAt() 语法：strObj.charAt(index) 返回指定索引位置处的字符
+
+indexOf() 语法：strObj.indexOf(subString[,startIndex]) 返回String对象内第一次出现子字符串的字符位置
+
+##  substr、substring
+
+JavaScript中substr和substring的区别是什么？
+
+- stringvar.substr(start[,length])返回一个从指定位置开始的指定长度的子字符串。如果length为0或负数，将返回一个空字符串。如果没有指定该参数，则子字符串将延续到stringvar的最后
+- strVariable.subtring(start,end)返回位于String对象中指定位置的子字符串。返回一个包含从开始到最后（不包含end）的子字符串。
+
+###  用JavaScript取www.qdjhu.com/public/images/test.jpg 字符串test.jpg 的扩展名
+
+```javascript
+url = www.qdjhu.com/public/images/test.jpg;
+m = url.lastIndexOf(".");
+fileName = url.substr(m+1)
+```
+
+##  iframe
+
+iframe 元素也就是文档中的文档，或者好像浮动的框架（frame）。通过iframe对象所在页面的对象模型，用户可以访问iframe对象的属性，但不能访问其内容。
+
+##  Ajax
+
+###  Ajax是什么？它的全称是什么？
+
+Ajax的全称是  “ Asynchronous JavaScript and XML ” （异步JavaScript和XML），它是一种创建交互式网页应用的网页开发技术
+
+###  简述Ajax中JavaScript脚本缓存问题，如何解决？
+
+修改JavaScript内容，调试时并不能显示新写的代码的结果，是因为JavaScript为了加速页面执行，当前页面会使用缓存来保持当前调用的相同链接。
+
+解决方法：为了开发时调试方便，可以在链接地址的后面增加一个随机函数
+
+###  Ajax应用和传统Web应用有什么不同？
+
+在传统的JavaScript编程中，如果想得到服务器端数据库或文件上的信息，或者发送客户端信息到服务器，需要建立一个HTML form，然后get或者post数据到服务器端。用户需要单击“submit”按钮来发送或者接收数据信息，然后等待服务器响应请求，页面重新加载。因为服务器每次都会返回一个新的页面，所以传统的web应用有可能很慢，而且交互不太好。使用Ajax技术，就可以使JavaScript通过XMLHttpRequest对象直接与服务器进行交互。通过HTTPRequest，一个Web页面可以发送一个请求到Web服务器，并且接收Web服务器返回的信息，展示给用户的还是同一个页面，用户感觉页面刷新了，但是看不到JavaScript后台进行的发送请求和接收响应。
+
+###  Ajax有哪些优点和缺点
+
+优点：
+
+- 最大的优点是页面无刷新，用户的体验非常好
+- 使用异步方式与服务器通信，具有更加迅速的响应能力
+- 可以把以前一些服务器负担的工作转嫁到客户端，利用客户端闲置的能力来处理，减轻服务器和带宽的负担，节约空间和宽带租用成本。并且减轻服务器的负担，Ajax的原则是“按需取数据”，可以最大程度的减少冗余请求和响应对服务器造成的负担
+- 基于标准化的并被广泛支持的技术，不需要下载插件或者小程序
+
+缺点：
+
+- Ajax不支持浏览器返回按钮
+- 安全问题，Ajax暴露了与服务器交互的细节
+- 对搜索引擎的支持比较弱
+- 破坏了程序的异常机制
+- 不容易调试
+
+###  Ajax跨域的解决办法？
+
+1. Web代理的方式。 即用户访问A网站时所产生的对B网站的跨域访问请求均提交到A网站的指定页面，由该页面代替用户页面完成交互，从而返回合适的结果。此方案可以解决现阶段所能够想到的多数跨域访问问题，但要求A网站提供Web代理的支持，因此A网站与B网站之间必须是紧密协作的，且每次交互过程，A网站的服务器负担增加，无法代用户保存session状态
+2. on-Demand方式。 MYMSN的门户就是用的这种方式，不过MYMSN中不涉及跨域访问问题。动态控制script标记的生成，通过修改script标记的src属性完成对跨域页面的调用。此方案存在的缺陷是，script的src属性完成该调用时，采取的是get方式，如果请求时传递的字符串过大，程序可能会无法正常运行。不过此方案非常适合聚合类门户使用
+3. iframe方式。采用iframe这种方式的确可以，但由于父窗口与子窗口之间不能交互（跨域访问的情况下，这种交互被拒绝），因此无法完成对父窗口效果的影响。
+4. 用户本地转储方式
+5. 结合前几种方式，在访问A网站时，先请求B网站完成数据处理，再根据返回的标识来获得所需的结果。这种方法的缺点也很明显，即B网站的负载增大了。其优点在于，对session实现了保持，同时A网站与B网站页面间的交互能力增强了
+
+###  XMLHttpRequest对象
+
+使用XMLHttpRequest (XHR)对象可以与服务器交互。您可以从URL获取数据，而无需让整个的页面刷新。这使得Web页面可以只更新页面的局部，而不影响用户的操作。XMLHttpRequest在 [Ajax](https://developer.mozilla.org/en-US/docs/AJAX) 编程中被大量使用。
+
+**常用属性**
+此接口继承了 XMLHttpRequestEventTarget 和 EventTarget 的属性
+
+ [`XMLHttpRequest.onreadystatechange`](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest/onreadystatechange) 
+
+当readyState属性发生变化时调用的[`EventHandler`](https://developer.mozilla.org/zh-CN/docs/Web/API/EventHandler)。
+
+[`XMLHttpRequest.readyState`](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest/readyState) 
+
+返回 一个unsigned short 即无符号短整型，请求的状态码。
+
+ [`XMLHttpRequest.response`](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest/response) 
+
+返回[`ArrayBuffer`](https://developer.mozilla.org/zh-CN/docs/Web/API/ArrayBuffer)、[`Blob`](https://developer.mozilla.org/zh-CN/docs/Web/API/Blob)、[`Document`](https://developer.mozilla.org/zh-CN/docs/Web/API/Document)、[`DOMString`](https://developer.mozilla.org/zh-CN/docs/Web/API/DOMString)}，具体是哪种类型取决于[`XMLHttpRequest.responseType`](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest/responseType)的值。其中包含响应体body。
+
+ [`XMLHttpRequest.responseText`](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest/responseText) 
+
+返回一个[`DOMString`](https://developer.mozilla.org/zh-CN/docs/Web/API/DOMString)}，该[`DOMString`](https://developer.mozilla.org/zh-CN/docs/Web/API/DOMString)}包含对请求的响应，如果请求未成功或尚未发送，则返回null。
+
+**常用方法**
+
+ [`XMLHttpRequest.open()`](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest/open) 
+
+初始化一个请求。该方法只能JavaScript代码中使用，若要在native code中初始化请求，请使用openRequest()。
+
+ [`XMLHttpRequest.send()`](https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest/send) 
+
+发送请求。如果请求是异步的（默认），那么该方法将在请求发送后立即返回。
+
+###  JavaScript如何得到HTTP的请求头信息和返回的头信息？
+
+getResponseHeader从响应头信息中获取指定的http头信息。
+
+语法：strValue =  oXMLHttpRequest.getResponseHeader(bstrHeader);
+
+getAllResponseHeaders()获取响应的所有HTTP头信息
+
+语法：strValue = oXMLHttpRequest.getAllResponseHeaders();
+
+##  闭包
+
+###  什么是闭包？
+
+闭包就是能够读取其他函数内部变量的函数
+
+- 闭包外层是一个函数
+- 闭包内部都有函数
+- 闭包会return内部函数
+- 闭包返回的函数内部不能有return
+- 执行闭包后，闭包内部变量会存在，而闭包内部函数的内部变量不会存在。
+
+**作用和原理：**
+
+因为闭包只有在被调用时才执行操作，所以它可以被用来定义控制结构。
+
+多个函数可以使用一个相同的环境，这使得他们可以通过改变那个环境相互交流。
+
+闭包可以用来实现对象系统。
+
+**使用的场景：**
+
+- 采用函数引用方式的setTimeout调用
+- 将函数关联到对象的实例方法
+- 封装相关的功能集
+
+###  闭包有什么特性？对页面有什么影响？
+
+**闭包特性：**
+
+- 作为函数变量的一个引用。当函数返回时，其处于激活状态
+- 闭包就是当一个函数返回时，并没有释放资源的栈区
+
+**闭包对页面的影响：**
+
+通过使用闭包，我们可以做很多事情。比如模拟面向对象的代码风格；更优雅、更简洁的表达出代码；在某些方面提升代码的执行效率。
+
+###  闭包的好处和坏处？
+
+闭包的好处：
+
+- 逻辑连续，当闭包作为另一个函数调用参数时，避免脱离当前逻辑而单独编写额外逻辑
+- 方便调用上下文的局部变量
+- 加强封装性，是第二点的延伸，可以达到对变量的保护作用
+
+闭包的坏处：
+
+- 闭包有一个非常严重的问题，即浪费内存，浪费内存不仅仅因为它常驻内存，更重要的是，对闭包的使用不当会造成无效内存的产生。
+
+###  请写出一个闭包的简单实例
+
+```javascript
+function a() {
+    var i = 0;
+    function b() {
+        alert(++i);
+    }
+    return b;
+}
+var c = a();
+c();
+//这是一个标准的闭包。在函数a中，定义了函数b，a又return了b的值。
+```
+
+##  video
+
+###  请使用JavaScript创建video标签，并创建播放、暂停方法
+
+```javascript
+function playPause() {
+    var myVideo = document.getElementsByTagName('video')[0];
+    if(myVideo.paused)
+        myVideo.play();
+    else
+        myVideo.pause();
+}
+
+function makeBig() {
+    var myVideo = document.getElementsByTagName('video')[0];
+    myVideo.height = (myVideo.videoHeight*2);
+}
+function makeNormal() {
+    var myVideo = document.getElementsByTagName('video')[0];
+    myVideo.height = (myVideo.videoHeight);
+}
 ```
 
