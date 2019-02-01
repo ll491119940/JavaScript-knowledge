@@ -2168,6 +2168,18 @@ charAt() 语法：strObj.charAt(index) 返回指定索引位置处的字符
 
 indexOf() 语法：strObj.indexOf(subString[,startIndex]) 返回String对象内第一次出现子字符串的字符位置
 
+###  如何把一个字符串里的所有单词的第一个字符转换为大写？
+
+```javascript
+var words = string.split(" ");
+for(var i = 0; i < words.length; i++) {
+    words[i] = words[i].charAt(0).toUpperCase() + words[i].slice(1);
+}
+return words.join(" ");
+```
+
+
+
 ##  substr、substring
 
 JavaScript中substr和substring的区别是什么？
@@ -2357,4 +2369,189 @@ function makeNormal() {
     myVideo.height = (myVideo.videoHeight);
 }
 ```
+
+## URL
+
+###  获取当前url，并将url的参数遍历数组打印出来，并在3秒自动返回前一个页面
+
+```javascript
+function getUrlPars() {
+    var url = location.search;
+    var theRequest = new Object();
+    if(url.indexOf("?") != -1) {
+        var str=url.substr(1);
+        strs = str.split("&");
+        for(var i = 0; i < strs.length; i++) {
+            var sTemp = strs[i].split("=");
+            theRequest[sTemp[0]]=(sTemp[1]);
+        }
+    }
+    return theRequest;
+}
+var myRequest = getUrlPars();
+```
+
+##  正则表达式
+
+###  请写一个方法，验证用户输入是否为数字
+
+```javascript
+function validate() {
+    var reg = new RegExp("^[0-9]*$");
+    var obj = document.getElementById("name");
+    if(!reg.test(obj.value)){
+        alert("请输入数字！");
+    }
+    if(!/^[0-9]*$/.test(obj.value)){
+        alert("请输入数字！")；
+    }
+}
+```
+
+###  用正则表达式怎样去掉重复的字符串，而只保留其中的一个？
+
+```javascript
+var str = "aaadcccdddd";
+str = str.replace(/(.)\1+/g,'$1');
+```
+
+###  用正则表达式判断手机、邮箱、电话、中文
+
+```javascript
+//手机
+/^13[0-9]{1}[0-9]{8} | ^15[9]{1}[0-9]{8}/
+//邮箱
+/^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$/
+//电话
+/((\(\d{3}\)|\d{3}-)|(\(\d{4}\)\d{4}-))?(\d{8}|\d{7})/
+//中文
+/^[\u4e00-\u9fa5]{0,}$/
+```
+
+## JSON
+
+###  请解释一下JSON是如何进行跨域的？
+
+json可以跨域，但是必须有jsoncallback这个参数约定
+
+###  请实现一个JSON.stringify()方法，能够对标准的JSON序列化
+
+JSON对象有两个方法：stringify() 和pares()。
+
+###  什么事JSON
+
+JSON是一种基于文本的数据交换方式，或者叫做数据描述格式，你是否该选用他首先肯定要关注它所拥有的优点。
+
+**JSON的优点：**
+
+1、基于纯文本，跨平台传递极其简单；
+
+2、Javascript原生支持，后台语言几乎全部支持；
+
+3、轻量级数据格式，占用字符数量极少，特别适合互联网传递；
+
+4、可读性较强，虽然比不上XML那么一目了然，但在合理的依次缩进之后还是很容易识别的；
+
+5、容易编写和解析，当然前提是你要知道数据结构；
+
+JSON的缺点当然也有，但在作者看来实在是无关紧要的东西，所以不再单独说明。
+
+**JSON的格式或者叫规则：**
+
+JSON能够以非常简单的方式来描述数据结构，XML能做的它都能做，因此在跨平台方面两者完全不分伯仲。
+
+1、JSON只有两种数据类型描述符，大括号{}和方括号[]，其余英文冒号:是映射符，英文逗号,是分隔符，英文双引号""是定义符。
+
+2、大括号{}用来描述一组“不同类型的无序键值对集合”（每个键值对可以理解为OOP的属性描述），方括号[]用来描述一组“相同类型的有序数据集合”（可对应OOP的数组）。
+
+3、上述两种集合中若有多个子项，则通过英文逗号,进行分隔。
+
+4、键值对以英文冒号:进行分隔，并且建议键名都加上英文双引号""，以便于不同语言的解析。
+
+5、JSON内部常用数据类型无非就是字符串、数字、布尔、日期、null 这么几个，字符串必须用双引号引起来，其余的都不用，日期类型比较特殊，这里就不展开讲述了，只是建议如果客户端没有按日期排序功能需求的话，那么把日期时间直接作为字符串传递就好，可以省去很多麻烦。
+
+###  jsonp的实现机制是什么？
+
+jsonp全称是JSON with Padding，是为了解决跨域请求资源而产生的解决方案。
+
+
+
+##  事件流
+
+###  描述一下事件冒泡，介绍事件委托（事件代理）的实现方法，以及它的原理和优点。
+
+1. 事件冒泡。在一个对象上触发某类事件，如果该对象定义了此事件的处理程序，那么此事件就会调用这个处理程序；如果没有定义此事件处理程序或者事件返回true，那么这个事件会向这个对象的父级对象传播，从里到外，直至它被处理，或者它到达了对象层次的顶层，即document对象
+2. 事件委托的实现方法。通俗地讲，onclick、onmouseover、onmouseout等就是事件。而委托，就是让别人来做，这个事件本来是加在某些元素上的，然而你却加到别人身上来做，以完成这个事件。也就是：利用冒泡的原理，把事件加到父级上，触发执行效果。
+3. 事件委托的原理。事件委托，其实从名字上就很好理解，就是自己的事交给别人去做，即将事件委托给别人。
+4. 事件委托的优点。利用比如有很多li元素，我们想为每一个元素注册一个单击事件，是一项海量的工作，如果利用冒泡原理，将事件委托给父级元素。
+
+###  解释JavaScript事件冒泡机制
+
+事件：在浏览器客户端应用平台，基本上都是以事件驱动的，即某个事件发生，然后做出相应的动作。浏览器的事件表示的是某些事情发生的信号。
+
+冒泡：例如，气泡从水底开始往上升，由深到浅，升到最上面。在上升的过程中，气泡会经过不同深度层次的水。这个气泡就相当于这里的事件，而水则相当于整个DOM树；事件从DOM树的底层一层一层往上传递，直至传递到DOM的根节点。
+
+###  分别写出普通与绑定的阻止默认事件
+
+普通： return false；
+
+绑定： preventDefault()；
+
+###  event.preventDefault 的作用是什么？与event.stopPropagation 有什么区别？
+
+event.preventDefault() 用法：该方法将通知Web浏览器不要执行与事件关联的默认动作。例如，如果type属性是submit，在事件传播的任意阶段可以调用任意的事件句柄，通过调用该方法，可以阻止提交表单。注意，如果event对象的cancelable属性是false，那么久没有默认动作，或者不能阻止默认动作。无论哪种情况，调用该方法都没有作用。
+
+event.stopPropagation() 用法：该方法将停止事件的传播，阻止它被分派到其他document节点。在事件传播的任何阶段都可以调用它。注意，虽然该方法不能阻止同一个document节点上的其他事件句柄被调用，但是它可以阻止把事件分派到其他节点。
+
+###  如何阻止冒泡事件和默认事件
+
+阻止冒泡事件发生需要调用以下函数：
+
+```javascript
+function stopBubble(e) {
+    if(e && e.stopPropagation) {
+        e.stopPropagation();
+    }
+    else {
+        window.event.cancelBubble = true;
+    }
+}
+```
+
+阻止默认事件发生需要调用以下函数：
+
+```javascript
+function stopDefault(e) {
+    if(e && e.preventDefault) {
+        e.preventDefault();
+    }
+    else {
+        window.event.returnValue = false;
+    }
+    return false;
+}
+```
+
+## 错误处理与调试
+
+### JavaScript程序中异常捕获的方法有哪些？
+
+使用Try...catch...来异常捕获
+
+使用onerror事件异常捕获，这种捕获方式是比较古老的一种方式，目前一些主流的浏览器暂不支持这种捕获方式
+
+##  Cookie
+
+HTTP Cookie（也叫Web Cookie或浏览器Cookie）是服务器发送到用户浏览器并保存在本地的一小块数据，它会在浏览器下次向同一服务器再发起请求时被携带并发送到服务器上。通常，它用于告知服务端两个请求是否来自同一浏览器，如保持用户的登录状态。Cookie使基于[无状态](https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview#HTTP_is_stateless_but_not_sessionless)的HTTP协议记录稳定的状态信息成为了可能。
+
+Cookie主要用于以下三个方面：
+
+- 会话状态管理（如用户登录状态、购物车、游戏分数或其它需要记录的信息）
+- 个性化设置（如用户自定义设置、主题等）
+- 浏览器行为跟踪（如跟踪分析用户行为等）
+
+Cookie曾一度用于客户端数据的存储，因当时并没有其它合适的存储办法而作为唯一的存储手段，但现在随着现代浏览器开始支持各种各样的存储方式，Cookie渐渐被淘汰。由于服务器指定Cookie后，浏览器的每次请求都会携带Cookie数据，会带来额外的性能开销（尤其是在移动环境下）。
+
+
+  
 
