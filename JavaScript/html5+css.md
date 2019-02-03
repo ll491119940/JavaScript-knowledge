@@ -60,6 +60,18 @@ HTML5新增的属性有auto compelete、min、max、multiple、pattern和step。
 4. 所有的属性必须用引号“”
 5. 所有的<和&特殊符号都要用编码表示
 
+###  HTMl元素的分类及其特点
+
+1. HTML元素分为块级元素和行内元素
+   - 块级元素：dl、div、form、h1-h6、p、ul等
+   - 行内元素：a、br、input、span、select等
+
+2. 块级元素和行内元素的特点：
+   - 块级元素的特点：总是在新行上开始；高度、行高及外边距和内边距可以控制；宽度默认是它的容器的100%；可以容纳内联元素和其他块元素。
+   - 行内元素特点：和其他元素都在一行上；高和外边距不可变；宽度就是它的文字和图片的宽度，不可改变；内联元素只能容纳文本或者其他内联元素。
+
+
+
 ##  HTML结构
 
 ###  请用HTML5标签写一个符合语义化的页面，页面有导航栏、页眉、页脚、文字内容以及图片内容。
@@ -135,9 +147,334 @@ HTML5新增的属性有auto compelete、min、max、multiple、pattern和step。
 </div>
 ```
 
-###  分别使用2个、3个、5个div画出一个大的红十字
+##  HTML音频与视频
 
-用div创建一个矩形
+###  请用代码`<video>`标签的使用方法
+
+方法一：`<video src="test.mp4">您的浏览器不支持video标签</video>`
+
+方法二：`<video><source src="test.3gp">您的浏览器不支持video标签</video>`
+
+###  如何在HTML5页面中嵌入音频？
+
+HTML5包含嵌入音频文件的标准方式，支持的格式包括MP3、wav和ogg
+
+```html
+<audio controls>
+    <source src="1.mp3" type="audio/mpeg" />
+</audio>
+```
+
+###  HTML5有哪些不同类型的存储？
+
+HTML5支持本地存储，速度快而且安全，在之前版本中是通过Cookie实现的。
+
+有两种不同的对象可用来存储数据
+
+- localStorage，适用于长期存储数据，浏览器关闭后数据不丢失；
+- sessionStorage，存储的数据在浏览器关闭之后自动删除。
+
+###  HTML5应用程序缓存为应用带来什么优势？
+
+应用程序缓存为应用带来三个优势。
+
+离线浏览——用户可在应用离线时使用它们；
+
+速度——已缓存资源加载得更快
+
+减少服务器负载——浏览器将只从服务器下载更新过或更改过的资源
+
+
+
+##  上传
+
+###  请写出可以实现上传且只能上传图片的标签
+
+HTML自带一个上传文件控件：
+
+`<input type="file" name="uploadFile" />`
+
+再给input标签添加一个accept=“image/*”的属性就只能上传图片了
+
+###  请写一段JavaScript代码，实现input type=“file”文件上传实例的代码
+
+```html
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head runat="server">
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+        <style type="text/css">
+            ._box {
+                position:relative;
+                width:119px;
+                height:37px;
+                background-color:#53AD3F;
+                background-image:url(images/bg.png);
+                background-repeat:no-repeat;
+                background-position:0 0;
+                background-attachment: scroll;
+                line-height:37px;
+                text-align:center;
+                color:white;
+                cursor:pointer;
+                overflow:hidden;
+                z-index:1;
+            }
+            ._box input {
+                position:absolute;
+                width:119px;
+                height:40px;
+                line-height:40px;
+                font-size:23px;
+                opacity:0;
+                filter: "alpha(opacity=0)";
+                filter: alpha(opacity=0);
+                -moz-opacity:0;
+                left:-5px;
+                top:-2px;
+                cursor:pointer;
+                z-index:2;
+            }
+        </style>
+        <title>js实现input file 文件上传</title>
+    </head>
+    <body>
+        <form id="form1" runat="server" method="post" enctype="multipart/form-data">
+            <div>
+                <div class="_box">
+                    <input type="file" name="_f" id="_f" />
+                    选择图片
+                </div>
+            </div>
+    </body>
+</html>
+  //用一个不透明度为0的<input type="file" />盖在让用户可见的标签上，让用户单击
+```
+
+用width height line-height font-size来控制`<input type="file" />`右侧浏览器按钮的大小。用left top（right、bottom）来控制右侧浏览器按钮的位置，可以设置为负值。用z-index来设置它们的覆盖层关系。Form必须有enctype=“multipart/form-data”标记才能上传文件。
+
+##  文本
+
+###  写出中英文强制转换的代码，以及文字超长显示的代码。
+
+1. word-break：break-all；只对英文起作用，以字母作为换行依据。
+2. word-wrap：break-word；只对英文起作用，以单词作为换行依据。
+3. white-space：pre-wrap；只对中文起作用，强制换行。
+4. white-space：nowrap；强制不换行，都起作用。
+5. white-space：nowrap；over-flow：hidden；text-overflow：elipsis；不换行，超出部分隐藏且以省略号形式出现。
+
+###  如下代码：`<div>这是div中的内容</div>`，如何得到div元素中文本的内容？如何清空div元素中的文本？
+
+$("div").text();获取中间的文本，不包括HTML标签
+
+$("div").html();获取中间的所有内容、
+
+$("div").empty();清空div元素中的文本。
+
+###  font-size：62.5%，解释一下如此设计字体大小的原因。
+
+在网页设计中我们经常看见`body{font-size:62.5%}`这样的设置，这主要是为了方便em与px相互转换，em的初始值为1em=16px，显然这样的话，1.2em=19.2px，可是我们在设置时很少看见19.2px这样表示的大小，也就是在用px表示大小时数值是不带小数位的。当设置了`body{font-size:62.5%}`时，则1em = 16px*62.5% = 10px，1.2em=12px，这样会使页面更精确。
+
+###  如下代码：
+
+```html
+<div id="mydiv">
+    <h2>
+        通过Ajax改变文本
+    </h2>
+</div>
+<button id="b01" type="button">
+    改变文本
+</button>
+```
+
+（1）使用$(select).load(url)把HTML文本内容改为XX.txt内容。
+
+（2）使用$.ajax(option)把HTMl文本内容改为XX.txt内容
+
+1. ```javascript
+   $(document).ready(function（) {
+       $("#b01").click(function() {
+           $("#mydiv").load("/jQuery/xx.txt");
+       })
+   }）
+   ```
+
+2. ```javascript
+   $.ajax({
+       type:"POST",
+       url:"xx.txt",
+       success: function(msg) {
+           $("#id").txt(msg);
+       }
+   })
+   ```
+
+
+
+##  模式
+
+###  什么是DOCTYPE？如何触发严格模式与混杂模式，这两种模式有什么区别？
+
+DOCTYPE（是 DOCument TYPE 的简写，即文档类型）是一组机器可读的规则，它们指示(X)HTML文档中允许有什么，不允许有什么。DOCTYPE正是用来告诉浏览器使用哪种DTD，一般放在(X)HTML文档开头表示声明，用以告诉其他人这个文档的类型风格。
+
+触发：根据不同的DTD触发，如果没有声明，那么默认为混杂模式。
+
+区别：严格模式是浏览器根据Web标准去解析页面，是一种要求严格的DTD，不允许使用任何表现层的语法， 如`<br/>`，混杂模式则是一种向后兼容的分析方法。
+
+##  HTML5页面
+
+###  如何触发页面 reflow，repaint？
+
+**什么是 repaint 和 reflow？**
+
+一个页面由两部分组成：
+DOM：描述该页面的结构
+render：描述 DOM 节点 (nodes) 在页面上如何呈现
+
+当 DOM 元素的属性发生变化 (如 color) 时， 浏览器会通知 render 重新描绘相应的元素，此过程称为 repaint。
+
+如果该次变化涉及元素布局 (如 width)， 浏览器则抛弃原有属性，重新计算并把结果传递给 render 以重新描绘页面元素， 此过程称为 reflow。
+
+这两个过程是很耗费浏览器性能的，从 IE 系列和 Chrome 渲染页面速度上的差距即可看出渲染引擎计算对应值和呈现并不一定高效， 而每次对元素的操作都会发生 repaints 或 reflow，因此编写 DOM 交互时如果不注意就会导致页面性能低下。
+
+页面渲染的过程如下:
+
+1.解析HTML代码并生成一个 DOM 树。
+
+2.解析CSS文件，顺序为：浏览器默认样式->自定义样式->页面内的样式。
+
+3.生成一个渲染树（render tree）。这个渲染树和DOM树的不同之处在于，它是受样式影响的。它不包括那些不可见的节点。
+
+4.当渲染树生成之后，浏览器就会在屏幕上“画”出所有渲染树中的节点。
+
+**什么情况下会触发浏览器的repaint/reflow?**
+
+除了页面在首次加载时必然要经历该过程之外，还有以下行为会触发这个行为：
+
+1. DOM元素的添加、修改（内容）、删除( Reflow + Repaint)
+2. 仅修改DOM元素的字体颜色（只有Repaint，因为不需要调整布局）
+3. 应用新的样式或者修改任何影响元素外观的属性
+4. Resize浏览器窗口、滚动页面
+5. 读取元素的某些属性（offsetLeft、offsetTop、offsetHeight、offsetWidth、 scrollTop/Left/Width/Height、clientTop/Left/Width/Height、 getComputedStyle()、currentStyle(in IE))
+
+###   如何将一个表单中的值同时提交到两个页面？
+
+```javascript
+<script>
+    function send_2page_f(formname,page1,target1,page2,target2) {
+    with(eval("document." + formname)) {
+        action=page1;
+        target=target1;
+        submit();
+        action=page2;
+        target=target2;
+        submit();
+    }
+}
+</script>
+<form name="form">
+    <input type="button"
+	onclick='send_2page_f("form","01.asp","01","02.asp","02")' value="提交">
+</form>
+```
+
+##  Canvas
+
+getContext() 方法返回一个用于在画布上绘图的环境。
+
+Graphics是java绘图的核心类，它可以支持两种绘图方式：一种是基本的绘图，如画线、矩形、圆等；另一种是画图像，主要用于动画制作。
+
+Canvas API(画布)用于在网页实时生成图像，并且可以操作图像内容，基本上它是一个可以用JavaScript操作的位图（bitmap）
+
+Canvas对象表示一个HTML画布元素`<canvas>`。它没有自己的行为，但是定义了一个API支持脚本化客户端绘图操作。你可以直接在该对象上指定宽度和高度，但是，其大多数功能都可以通过CanvasRenderingContext2D对象获得。这是通过Canvas对象的getContext()方法并且把直接量字符串“2d”作为唯一的参数传递给它而获得的。
+
+###  写出Canvas中画圆的代码，直径为150px，边框宽度为5px。
+
+```html
+<!DOCTYPE html>
+<html>
+    <body>
+        <canvas id="myCanvas" width="200" height="200" style="border:2px solid blue">您的浏览器不支持</canvas>
+    </body>
+    <script type="text/javascript">
+        var c=document.getElementById("myCanvas");
+        var cxt=c.getContext("2d");
+        cxt.fillStyle="#FF0000";
+        cxt.beginPath();
+        cxt.arc(100,100,75,0,Math.PI*2,true);
+        cxt.closePath();
+        cxt.fill();
+    </script>
+</html>
+```
+
+##  媒体查询
+
+###  `<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=10 "/>` 解释这个标签行的作用
+
+网页手机Wap2.0网页的head里加入这条元标签，在iPhone的浏览器中，页面将以原始大小显示，并不允许缩放。
+
+width ——viewport的宽度；
+
+height ——viewport的高度；
+
+initial-scale ——初始的缩放比例；
+
+minimum-scale ——允许用户缩放到的最小比例；
+
+maximum-scale —— 允许用户缩放到的最大比例；
+
+user-scalable ——用户是否可以手动缩放。
+
+###  写出media type的几种使用方法。
+
+方法一:`<link href= "style.css" media="screen print" ...`
+
+方法二：`< ? Xml-stylesheet media="screen" href="style.css"...`
+
+方法三：`@import url("style.css") screen;`
+
+方法四：`<style media="screen"> @import url("style.css") </style> `
+
+方法五：`media screen{ Selector {rules} }`
+
+##  媒体调用标签
+
+###  请写出可以调用手机照相机的标签
+
+```html
+<input type="file" accept"audio/*;capture=microphone"/>
+```
+
+###  标签代码调用大全
+
+关键描述调用标签：
+
+```html
+<meta name="keywords" content="{dede:field name='keywords'/}">
+<meta name="description" content="{dede:field name='description' function='html2text(@me)'/}">
+模板路径调用标签：{dede:field name='templeturl'/}
+网站标题调用标签：{dede:global name='cfg_webname'/}
+栏目导航调用标签：<a href="/">首页</a>
+{dede:channel type='top' row='8' currentstyle="<li class='thisclass'><a href='~typelink~'>~typename~</a></li>"}
+<li><a href='[field:typelink/]' target="_blank">[field:typename/]</a></li>
+{/dede:channel}
+指定栏目调用标签：{dede:one-type typeid='ID'}[field:typename/]{/dede:onetype}
+频道栏目调用标签：{dede:channel type='self'} <li><a href='[field:typelink/]'>[field:type-name]</a></li>{/dede:channel}
+友情链接调用标签：{dede:flink row='24' linktype=2/}
+网站版权调用标签：{dede:global name='cfg_powerby'/}
+网站备案调用标签：{dede:global name='cfg_beian'/}
+当前栏目名称调用标签：{dede:field name='typename'/}
+当前位置调用标签：{dede:field name='position'/}
+列表文章调用标签：{dede:list pagesize='8'}{/dede:list}
+栏目链接调用标签：[field:typelink function='str_replace("a", "a class=ulink ", @me)'/]
+作者链接调用标签：[field：writer /]
+列表单击调用标签：[field:click /]
+列表评论调用标签：[field:post-num /]
+查阅全文调用标签：<a href="[field:arcurl/]">查阅全文...</a>
+```
+
+
 
 
 
@@ -195,3 +532,173 @@ z-index属性在JavaScript中使用语法：object.style.zIndex="1"
 几乎所有的主流浏览器都支持z-index属性
 
 z-index在IE和Firefox下的默认值不同，在IE下z-index默认值为0；在Firefox下其默认值为auto
+
+##  弹性盒布局
+
+引入弹性盒布局模型的目的是提供一种更加有效的方式来对一个容器中的条目进行排列、对齐和分配空白空间。即便容器中条目的尺寸未知或是动态变化的，弹性盒布局模型也能正常工作。在该布局模型中，容器会根据布局的需要，调整其中包含的条目尺寸和顺序来最好地填充所有可用的空间。当容器的尺寸由于屏幕大小或窗口尺寸发生变化时，其中包含的条目也会被动态的调整。比如，当容器尺寸变大时，其中包含的条目会拉伸以占满多余的空白空间；当容器尺寸变小时，条目会缩小以防止超出容器的范围。弹性盒布局是与方向无关的。在传统的布局方式中，block布局是把块在垂直方向从上到下依次排列的；而inline布局则是在水平方向来排列的。弹性盒模型并没有这样内在的方向限制，可以由开发人员自由操作。
+
+###  了解弹性盒模型属性
+
+box-orient：设置或检索弹性盒模型对象的子元素的排列方式。
+
+box-pack：设置或检索弹性盒模型对象的子元素的左右对齐方式。
+
+box-align：设置或检索弹性盒模型对象的子元素的上下对齐方式。
+
+box-flex：设置或检索弹性盒模型对象的子元素如何分配其剩余元素。
+
+box-flex-group：设置或检索弹性盒模型对象的子元素的所属组。
+
+box-ordinal-group：设置或检索弹性盒模型对象的子元素的显示顺序。
+
+box-direction：设置或检索弹性盒模型对象的子元素的排列顺序是否反转。
+
+box-lines：设置或检索弹性盒模型对象的子元素是否可以显示换行。
+
+##  代码优化
+
+###  请简化这段CSS代码
+
+```css
+abc {
+    padding-left:50px;
+    padding-top:10px;
+    padding-bottom:5px;
+    padding-right:15px;
+}
+```
+
+padding属性的书写格式总共有以下几种。
+
+1. padding：10px的意思是上下左右值全是10px。
+2. padding：5px 10px的意思是上下为5px，左右为10px。
+3. padding：1px 2px 3px 4px的意思是：上为1px，右为2px，下为3px，左为4px。
+4. padding：5px 10px 7px的意思是：上为5px，左右为10px，下为7px。
+5. padding后面4个值定义的顺序分别为：上、右、下、左，而padding-top或padding-bottom这种写法，只是单方面的定义了一个方向的值，这样写会增加CSS代码的长度，增加CSS样式的代码量，拖慢页面的加载速度。
+
+###  请列出CSS代码的7个优化准则
+
+1. 使用简单
+2. 避免使用hack
+3. 使用留白
+4. 移除多余的结构和重设
+5. 让CSS保证日后的维护
+6. 记录工作（标记向导和样式表向导）
+7. 压缩使用
+
+##  边框背景
+
+###  CSS3如何实现圆角、阴影效果？
+
+第一种方法是添加背景图片，CSS3可以允许一个元素有多个背景图像，这样给一个元素添加4个1/4圆的背景图像分别位于四个角就可以实现圆角效果了
+
+```css
+.box {
+    background-img:url(/img/top-left.gif), url(/img/top-right.gif), url(/img/bottom-left.gif), url(/img/bottom-right.gif);
+    background-repeat:no-repeat,no-repeat,no-repeat,no-repeat;
+    //定义4幅图分别显示在4个角上
+    background-position: top left, top right, bottom left, bottom right;
+}
+```
+
+第二种方法，直接用CSS实现，不需要使用图片。
+
+```css
+.box {
+    -moz-border-radius: 1em;
+    -webkit-border-radius: 1em;
+    border-radius: 1em;
+}
+```
+
+CSS3的box-shadow属性可以直接实现阴影效果。
+
+```css
+img {
+    -webkit-box-shadow:3px 3px 6px #666;
+    -moz-box-shadow:3px 3px 6px #666;
+    box-shadow:3px 3px 6px #666;
+}
+```
+
+这个属性的4个参数是：垂直偏移、水平偏移、投影的宽度（模糊程度）、颜色
+
+###  box-sizing属性有哪些，各代表什么含义？
+
+box-sizing属性允许以特定的方式定义匹配某个区域的特定元素。
+
+content-box：padding 和 border不被包含在定义的width和height之内。对象的实际宽度等于设置的width、border、padding以及margin之和，即（Element width = width + border + padding + margin），此属性表现为标准模式下的盒模型。
+
+border-box：padding和border被包含在定义的width和height之内，对象的实际宽度就等于设置的width值，即使定义有border和padding也不会改变对象的实际宽度，即（Element width = width），此属性表现为怪异模式下的盒模型。
+
+##  多列布局
+
+CSS3中新出现的多列布局（multi-column）是传统HTML页面中块状布局模式的有力扩充。这种新语法能够让Web开发人员轻松地让文本呈现多列显示。
+
+###  宽度自适应三栏的布局方式有哪些？
+
+1. 绝对定位法 左右两栏采用绝对定位，分别固定于页面的左右两侧，中间的主题栏用左右margin值撑开距离，于是实现了三栏的自适应布局。
+
+2. 自身浮动法 此方法代码最简单，应用了标签浮动跟随的特性。左栏左浮动，右栏右浮动，主体之间放后面，就实现了自适应
+
+   
+
+###  写出三列布局的CSS，HTMl如下，要求不改变HTML结构，用CSS分别实现，按照ABC排列、按照BAC排列、按照CBA排列。其中AB为定宽，尽量让B自适应宽度，不能使用CSS hack
+
+```html
+<div id="A"></div>
+<div id="B"></div>
+<div id="C"></div>
+```
+
+CSS三列布局走出HTML布局阴影，两端固定宽度，中间自适应结构
+
+```html
+<div class="wrap">
+    <div class="main">
+        <div id="A"></div>
+    </div>
+    <div id="B"></div>
+	<div id="C"></div>
+</div>
+//CSS代码
+.wrap {
+	width:500px;
+	border: 1px solid;
+	overflow:hidden;
+}
+.main {
+	float:left;
+	width:100%;
+}
+#A {
+	height: 50px;
+	margin: 0 150px;
+	background-color:#f60;
+}
+#B {
+	float:left;
+	width:150px;
+	height: 50px;
+	margin-left: -100%;
+	background-color:#6f0;
+}
+#C {
+	float:left;
+	width:150px;
+	height: 50px;
+	margin-left: -150px;
+	background-color:#06f;
+}
+```
+
+## 响应式布局
+
+###  谈谈你对响应式布局的看法？
+
+响应式布局有缺点，也有优点。
+
+优点：面对不同分辨率设备，灵活性强，能够快捷地解决多设备显示适应问题。
+
+缺点：兼容各种设备时所需工作量大、效率低下、代码累赘，会隐藏无用的元素，加载时间延长，其实这是一种折衷性质的设计解决方案，由于多方面因素影响而达不到最佳效果，在一定程度上改变了网站原有的布局结构，会出现用户混淆的情况。
+
